@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/blanc</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">#0F2027</item>
+        <item name="android:textColor">@color/blanc</item>
+        <item name="android:textColorPrimary">@color/blanc</item>
+        <item name="android:colorPrimaryDark">@color/blanc</item>
+        <item name="android:colorAccent">@color/blanc</item>
+        <item name="android:tint">@color/blanc</item>
+    </style>
+
+    <style name="PreferenceScreen" parent="Theme.AppCompat">
+        <item name="android:textColor">@color/blanc</item>
+        <item name="android:textColorPrimary">@color/blanc</item>
+        <item name="colorPrimary">@color/blanc</item>
+        <item name="colorPrimaryDark">@color/blanc</item>
+        <item name="colorAccent">@color/blanc</item>
+    </style>
+
+</resources>

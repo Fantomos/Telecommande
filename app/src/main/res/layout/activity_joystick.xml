@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    tools:context="com.tl.tlcommande.Joystick">
+
+    <View
+        android:id="@+id/divider12"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/blanc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <View
+        android:id="@+id/divider13"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:background="@color/blanc"
+        app:layout_constraintBottom_toTopOf="@id/periodeInputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/battery" />
+
+    <TextView
+        android:id="@+id/angle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/audiowide"
+        android:gravity="center"
+        android:text="(Angle : 0°)"
+        android:textColor="@color/blanc"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/joystickView"
+        app:layout_constraintStart_toStartOf="@+id/direction"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/audiowide"
+        android:text="Joystick"
+        android:textAllCaps="true"
+        android:textColor="@color/blanc"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:transitionName="Joystick"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/vitesse"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:fontFamily="@font/audiowide"
+        android:gravity="center|start"
+        android:text="Vitesse : 0"
+        android:textColor="@color/blanc"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/force"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/direction"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/audiowide"
+        android:gravity="center|start"
+        android:text="Direction : 64"
+        android:textColor="@color/blanc"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/angle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/battery"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/divider13"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider12">
+
+        <TextView
+            android:id="@+id/tensionTot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/audiowide"
+            android:text="12.7V "
+            android:textColor="@color/blanc"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tensionCell3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/batteryMeter" />
+
+        <TextView
+            android:id="@+id/tensionCell3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="@font/audiowide"
+            android:gravity="center_vertical"
+            android:text="Celllule 3 : 3.3V"
+            android:textColor="@color/blanc"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/batteryMeter"
+            app:layout_constraintTop_toBottomOf="@+id/tensionCell2" />
+
+        <TextView
+            android:id="@+id/tensionCell2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="@font/audiowide"
+            android:gravity="center_vertical"
+            android:text="Celllule 2 : 3.3V"
+            android:textColor="@color/blanc"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/tensionCell3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/batteryMeter"
+            app:layout_constraintTop_toBottomOf="@+id/tensionCell1" />
+
+        <TextView
+            android:id="@+id/tensionCell1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fontFamily="@font/audiowide"
+            android:gravity="center_vertical"
+            android:text="Celllule  1 : 3.3V"
+            android:textColor="@color/blanc"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/tensionCell2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/batteryMeter"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <eo.view.batterymeter.BatteryMeterView
+            android:id="@+id/batteryMeter"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            app:batteryMeterChargeLevel="50"
+            app:batteryMeterChargingColor="@color/vert"
+            app:batteryMeterColor="@color/vert"
+            app:batteryMeterCriticalChargeLevel="10"
+            app:batteryMeterCriticalColor="@color/rouge"
+            app:batteryMeterIndicatorColor="@android:color/transparent"
+            app:batteryMeterIsCharging="false"
+            app:batteryMeterTheme="sharp"
+            app:batteryMeterUnknownColor="@color/blanc"
+            app:layout_constraintBottom_toTopOf="@+id/tensionTot"
+            app:layout_constraintEnd_toStartOf="@+id/tensionCell2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/force"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/audiowide"
+        android:gravity="center"
+        android:text="(Force  : 0%)"
+        android:textColor="@color/blanc"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/joystickView"
+        app:layout_constraintStart_toStartOf="@+id/vitesse"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/periodeInputLayout"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColorHint="@color/blanc"
+        app:errorEnabled="false"
+        app:layout_constraintBottom_toTopOf="@id/vitesse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider13">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/periodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/blanc"
+            android:fontFamily="@font/audiowide"
+            android:hint="Periode de transmission (ms)"
+            android:inputType="numberDecimal"
+            android:singleLine="true"
+            android:text="100"
+            android:textColor="@color/blanc"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.tl.tlcommande.JoystickView
+        android:id="@+id/joystickView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:JV_backgroundColor="#00FFFFFF"
+        app:JV_borderColor="@color/blanc"
+        app:JV_borderWidth="4dp"
+        app:JV_buttonColor="@color/blanc"
+        app:JV_buttonSizeRatio="12%"
+        app:JV_fixedCenter="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="w,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
