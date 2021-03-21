@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import eo.view.batterymeter.BatteryMeter;
 import me.aflak.bluetooth.Bluetooth;
 import me.aflak.bluetooth.interfaces.BluetoothCallback;
@@ -92,7 +93,7 @@ public class Joystick2 extends AppCompatActivity {
         batteryMeter.setChargeLevel(null);
         batteryMeter.setCriticalChargeLevel((int)Math.round((Constantes.batterieTensionCrit/Constantes.batterieTensionMax)*100));
 
-
+        lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
         joystickVitesse = (JoystickView) findViewById(R.id.joystickSpeed);
         joystickDirection = (JoystickView) findViewById(R.id.joystickDirection);
         interval = Constantes.periodeTransmissionDefaut;
