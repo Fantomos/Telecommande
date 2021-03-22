@@ -240,9 +240,9 @@ public class Joystick2 extends AppCompatActivity {
 
         @Override
         public void onMessage(byte[] message) {
-            valueTensionCell1 = ((message[0]&0xFF)<<2 | (message[1]&0xFF))*Constantes.conversionVersTension/1024;
-            valueTensionCell2 = ((message[2]&0xFF)<<2 | (message[3]&0xFF))*Constantes.conversionVersTension/1024;
-            valueTensionCell3 = ((message[4]&0xFF)<<2 | (message[5]&0xFF))*Constantes.conversionVersTension/1024;
+            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*Constantes.conversionVersTension/1024;
+            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*Constantes.conversionVersTension/1024;
+            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*Constantes.conversionVersTension/1024;
             valueTensionTot =  valueTensionCell1 +  valueTensionCell2 +  valueTensionCell3;
             batteryMeter.setChargeLevel((int) Math.round((valueTensionTot/Constantes.batterieTensionMax)*100));
             tensionTot.setText(String.format("%.2f V",valueTensionTot));
@@ -252,30 +252,29 @@ public class Joystick2 extends AppCompatActivity {
 
             if(valueTensionTot <= Constantes.batterieTensionCrit){
                 tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-                setLocked(true);
             }else{
                 tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-                setLocked(false);
             }
             if(valueTensionCell1 <= Constantes.celluleTensionCrit){
                 tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-                setLocked(true);
             }else{
                 tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-                setLocked(false);
             }
             if(valueTensionCell2 <= Constantes.celluleTensionCrit){
                 tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-                setLocked(true);
             }else{
                 tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-                setLocked(false);
             }
             if(valueTensionCell3 <= Constantes.celluleTensionCrit){
                 tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-                setLocked(true);
             }else{
                 tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
+            }
+
+            if(valueTensionCell3 <= Constantes.celluleTensionCrit || valueTensionCell2 <= Constantes.celluleTensionCrit || valueTensionCell1 <= Constantes.celluleTensionCrit || valueTensionTot <= Constantes.batterieTensionCrit){
+                setLocked(true);
+            }
+            else{
                 setLocked(false);
             }
 
@@ -305,8 +304,11 @@ public class Joystick2 extends AppCompatActivity {
 
     private void setLocked(boolean etat){
         locked = etat;
-        joystickDirection.setEnabled(etat);
-        joystickVitesse.setEnabled(etat);
+        if(lockEnabled) {
+            joystickDirection.setEnabled(!etat);
+            joystickVitesse.setEnabled(!etat);
+        }
+
     }
 
     private void backMenu(){
