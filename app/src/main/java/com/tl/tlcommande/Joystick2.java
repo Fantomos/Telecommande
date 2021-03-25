@@ -64,8 +64,10 @@ public class Joystick2 extends AppCompatActivity {
     private double valueTensionCell2;
     private double valueTensionCell3;
 
-    private boolean locked = false;
+    private boolean locked = true;
     private boolean lockEnabled = false;
+    private int tensionMax = 15;
+    private int resolutionMax = 1024;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,14 +93,17 @@ public class Joystick2 extends AppCompatActivity {
         tensionCell2.setText("Cellule 2  : ??.?? V");
         tensionCell3.setText("Cellule 3  : ??.?? V");
         batteryMeter.setChargeLevel(null);
-        batteryMeter.setCriticalChargeLevel((int)Math.round((Constantes.batterieTensionCrit/Constantes.batterieTensionMax)*100));
+        batteryMeter.setCriticalChargeLevel((int)Math.round(((Constantes.batterieTensionCrit-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
 
         lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
+        tensionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("tensionMax","15"));
+        resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
+
         joystickVitesse = (JoystickView) findViewById(R.id.joystickSpeed);
         joystickDirection = (JoystickView) findViewById(R.id.joystickDirection);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
-
+        setLocked(true);
         joystickVitesse.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
@@ -114,9 +119,9 @@ public class Joystick2 extends AppCompatActivity {
             @Override
             public void onMove(int angle, int strength) {
                 if(angle == 0){
-                    direction = (int)Math.round(Constantes.directionMax/2.0 - strength*Constantes.directionMax/100.0);
+                    direction = (int)Math.round(Constantes.directionMax/2.0 - strength*Constantes.directionMax/200.0);
                 }else{
-                    direction = (int)Math.round(Constantes.directionMax/2.0 + strength*Constantes.directionMax/100.0);
+                    direction = (int)Math.round(Constantes.directionMax/2.0 + strength*Constantes.directionMax/200.0);
                 }
             }
         },1);
@@ -148,7 +153,7 @@ public class Joystick2 extends AppCompatActivity {
                 if(!locked | !lockEnabled) {
                     byte[] data = new byte[]{(byte) (vitesse | 0b10000000), (byte) (direction & 0b01111111)};
                     bluetooth.send(data);
-                    Log.d("Kadad", String.valueOf(vitesse));
+                    Log.d("Kadad", String.valueOf(direction));
                     handler.postDelayed(mStatusChecker, interval);
                 }
             }
@@ -236,15 +241,16 @@ public class Joystick2 extends AppCompatActivity {
             toast.getView().setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.bleuH)));
             ((TextView)toast.getView().findViewById(android.R.id.message)).setTextColor(getResources().getColor(R.color.blanc));
             toast.show();
+            onBackPressed();
         }
 
         @Override
         public void onMessage(byte[] message) {
-            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*Constantes.conversionVersTension/1024;
-            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*Constantes.conversionVersTension/1024;
-            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*Constantes.conversionVersTension/1024;
+            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*tensionMax/resolutionMax;
+            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*tensionMax/resolutionMax;
+            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*tensionMax/resolutionMax;
             valueTensionTot =  valueTensionCell1 +  valueTensionCell2 +  valueTensionCell3;
-            batteryMeter.setChargeLevel((int) Math.round((valueTensionTot/Constantes.batterieTensionMax)*100));
+            batteryMeter.setChargeLevel((int) Math.round(((valueTensionTot-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
             tensionTot.setText(String.format("%.2f V",valueTensionTot));
             tensionCell1.setText(String.format("Cellule  1 : %.2f V",valueTensionCell1));
             tensionCell2.setText(String.format("Cellule 2 : %.2f V",valueTensionCell2));
@@ -307,6 +313,21 @@ public class Joystick2 extends AppCompatActivity {
         if(lockEnabled) {
             joystickDirection.setEnabled(!etat);
             joystickVitesse.setEnabled(!etat);
+            if(locked){
+                joystickDirection.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
+                joystickDirection.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
+                joystickDirection.setAlpha(0.25f);
+                joystickVitesse.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
+                joystickVitesse.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
+                joystickVitesse.setAlpha(0.25f);
+            }else{
+                joystickDirection.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
+                joystickDirection.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
+                joystickDirection.setAlpha(1f);
+                joystickVitesse.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
+                joystickVitesse.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
+                joystickVitesse.setAlpha(1f);
+            }
         }
 
     }

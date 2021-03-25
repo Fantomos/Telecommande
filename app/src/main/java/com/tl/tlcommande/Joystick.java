@@ -19,6 +19,7 @@ import me.aflak.bluetooth.interfaces.DeviceCallback;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -35,6 +36,7 @@ public class Joystick extends AppCompatActivity {
     private TextView angleText;
     private TextView vitesseText;
     private TextView directionText;
+    private TextView lockText;
 
     private TextView tensionTot;
     private TextView tensionCell1;
@@ -46,8 +48,10 @@ public class Joystick extends AppCompatActivity {
     private double valueTensionCell1 = 0;
     private double valueTensionCell2 = 0;
     private double valueTensionCell3 = 0;
-    private boolean locked = false;
+    private boolean locked = true;
     private boolean lockEnabled = false;
+    private int tensionMax = 15;
+    private int resolutionMax = 1024;
 
     private JoystickView joystick;
     private EditText periodeInput;
@@ -78,18 +82,22 @@ public class Joystick extends AppCompatActivity {
         tensionCell2 = findViewById(R.id.tensionCell2);
         tensionCell3 = findViewById(R.id.tensionCell3);
         batteryMeter = findViewById(R.id.batteryMeter);
+        lockText = findViewById(R.id.lock);
 
         tensionTot.setText("??.?? V");
         tensionCell1.setText("Cellule  1  : ??.?? V");
         tensionCell2.setText("Cellule 2  : ??.?? V");
         tensionCell3.setText("Cellule 3  : ??.?? V");
         batteryMeter.setChargeLevel(null);
-        batteryMeter.setCriticalChargeLevel((int)Math.round((Constantes.batterieTensionCrit/Constantes.batterieTensionMax)*100));
+        batteryMeter.setCriticalChargeLevel((int)Math.round(((Constantes.batterieTensionCrit-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
 
         lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
+        tensionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("tensionMax","15"));
+        resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
         joystick = (JoystickView) findViewById(R.id.joystickView);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
+        setLocked(true);
 
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
@@ -231,17 +239,18 @@ public class Joystick extends AppCompatActivity {
             toast.getView().setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.bleuH)));
             ((TextView)toast.getView().findViewById(android.R.id.message)).setTextColor(getResources().getColor(R.color.blanc));
             toast.show();
+            onBackPressed();
         }
 
         @Override
         public void onMessage(byte[] message) {
 
-            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*Constantes.conversionVersTension/1024;
-            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*Constantes.conversionVersTension/1024;
-            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*Constantes.conversionVersTension/1024;
+            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*tensionMax/resolutionMax;
+            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*tensionMax/resolutionMax;
+            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*tensionMax/resolutionMax;
             valueTensionTot =  valueTensionCell1 +  valueTensionCell2 +  valueTensionCell3;
             Log.d("data", String.valueOf(valueTensionTot));
-            batteryMeter.setChargeLevel((int) Math.round((valueTensionTot/Constantes.batterieTensionMax)*100));
+            batteryMeter.setChargeLevel((int) Math.round(((valueTensionTot-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
             tensionTot.setText(String.format("%.2f V",valueTensionTot));
             tensionCell1.setText(String.format("Cellule  1 : %.2f V",valueTensionCell1));
             tensionCell2.setText(String.format("Cellule 2 : %.2f V",valueTensionCell2));
@@ -303,6 +312,18 @@ public class Joystick extends AppCompatActivity {
         locked = etat;
         if(lockEnabled) {
             joystick.setEnabled(!etat);
+            if(locked){
+                joystick.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
+                joystick.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
+                joystick.setAlpha(0.25f);
+                lockText.setVisibility(View.VISIBLE);
+            }else{
+                joystick.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
+                joystick.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
+                joystick.setAlpha(1f);
+                lockText.setVisibility(View.INVISIBLE);
+
+            }
         }
     }
 

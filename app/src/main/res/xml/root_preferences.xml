@@ -26,6 +26,21 @@
             app:summaryOn="Sécurité activée lorsque la batterie est déchargée"
             app:title="Sécurité" />
 
+        <EditTextPreference
+            android:key="tensionMax"
+            android:foregroundTint="@color/blanc"
+            android:title="Tension maximum"
+            android:defaultValue="15"
+            android:summary="Tension maximum possible par le PIC"
+           />
+
+        <EditTextPreference
+            android:key="resolutionMax"
+            android:foregroundTint="@color/blanc"
+            android:title="Résolution maximum"
+            android:defaultValue="1024"
+            android:summary="Résolution maximum de la tension par le PIC"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>
