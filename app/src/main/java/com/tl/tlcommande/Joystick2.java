@@ -68,6 +68,9 @@ public class Joystick2 extends AppCompatActivity {
     private boolean lockEnabled = false;
     private int tensionMax = 15;
     private int resolutionMax = 1024;
+    private double batterieTensionCrit = 10.5;
+    private double celluleTensionCrit = 3.5;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +101,8 @@ public class Joystick2 extends AppCompatActivity {
         lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
         tensionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("tensionMax","15"));
         resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
+        batterieTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("batterieTensionCrit","10.5"));
+        celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
 
         joystickVitesse = (JoystickView) findViewById(R.id.joystickSpeed);
         joystickDirection = (JoystickView) findViewById(R.id.joystickDirection);
@@ -153,7 +158,6 @@ public class Joystick2 extends AppCompatActivity {
                 if(!locked | !lockEnabled) {
                     byte[] data = new byte[]{(byte) (vitesse | 0b10000000), (byte) (direction & 0b01111111)};
                     bluetooth.send(data);
-                    Log.d("Kadad", String.valueOf(direction));
                     handler.postDelayed(mStatusChecker, interval);
                 }
             }
@@ -246,42 +250,45 @@ public class Joystick2 extends AppCompatActivity {
 
         @Override
         public void onMessage(byte[] message) {
-            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*tensionMax/resolutionMax;
-            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*tensionMax/resolutionMax;
-            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*tensionMax/resolutionMax;
-            valueTensionTot =  valueTensionCell1 +  valueTensionCell2 +  valueTensionCell3;
-            batteryMeter.setChargeLevel((int) Math.round(((valueTensionTot-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
-            tensionTot.setText(String.format("%.2f V",valueTensionTot));
-            tensionCell1.setText(String.format("Cellule  1 : %.2f V",valueTensionCell1));
-            tensionCell2.setText(String.format("Cellule 2 : %.2f V",valueTensionCell2));
-            tensionCell3.setText(String.format("Cellule 3 : %.2f V",valueTensionCell3));
+            Log.d("Kada", String.valueOf(message.length));
+            if (message.length == 6) {
+                valueTensionCell1 = (((message[1] & 0xFF) << 8 | (message[0] & 0xFF))) * (double) tensionMax / (double) resolutionMax;
+                valueTensionCell2 = (((message[3] & 0xFF) << 8 | (message[2] & 0xFF))) * (double) tensionMax / (double) resolutionMax;
+                valueTensionCell3 = (((message[5] & 0xFF) << 8 | (message[4] & 0xFF))) * (double) tensionMax / (double) resolutionMax;
+                valueTensionTot = valueTensionCell1 + valueTensionCell2 + valueTensionCell3;
+                Log.d("data", String.valueOf(valueTensionTot));
+                batteryMeter.setChargeLevel((int) Math.round(((valueTensionTot - Constantes.batterieTensionMin) / (Constantes.batterieTensionMax - Constantes.batterieTensionMin)) * 100));
+                tensionTot.setText(String.format("%.2f V", valueTensionTot));
+                tensionCell1.setText(String.format("Cellule  1 : %.2f V", valueTensionCell1));
+                tensionCell2.setText(String.format("Cellule 2 : %.2f V", valueTensionCell2));
+                tensionCell3.setText(String.format("Cellule 3 : %.2f V", valueTensionCell3));
 
-            if(valueTensionTot <= Constantes.batterieTensionCrit){
-                tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
-            if(valueTensionCell1 <= Constantes.celluleTensionCrit){
-                tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
-            if(valueTensionCell2 <= Constantes.celluleTensionCrit){
-                tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
-            if(valueTensionCell3 <= Constantes.celluleTensionCrit){
-                tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
+                if (valueTensionTot <= batterieTensionCrit) {
+                    tensionTot.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionTot.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
+                if (valueTensionCell1 <= celluleTensionCrit) {
+                    tensionCell1.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionCell1.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
+                if (valueTensionCell2 <= celluleTensionCrit) {
+                    tensionCell2.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionCell2.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
+                if (valueTensionCell3 <= celluleTensionCrit) {
+                    tensionCell3.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionCell3.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
 
-            if(valueTensionCell3 <= Constantes.celluleTensionCrit || valueTensionCell2 <= Constantes.celluleTensionCrit || valueTensionCell1 <= Constantes.celluleTensionCrit || valueTensionTot <= Constantes.batterieTensionCrit){
-                setLocked(true);
-            }
-            else{
-                setLocked(false);
+                if (valueTensionCell3 <= celluleTensionCrit || valueTensionCell2 <= celluleTensionCrit || valueTensionCell1 <= celluleTensionCrit || valueTensionTot <= batterieTensionCrit) {
+                    setLocked(true);
+                } else {
+                    setLocked(false);
+                }
             }
 
         }
