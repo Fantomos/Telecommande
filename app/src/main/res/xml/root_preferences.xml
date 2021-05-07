@@ -41,6 +41,20 @@
             android:defaultValue="1024"
             android:summary="Résolution maximum de la tension par le PIC"/>
 
+        <EditTextPreference
+            android:key="celluleTensionCrit"
+            android:foregroundTint="@color/blanc"
+            android:title="Tension critique : Cellule"
+            android:defaultValue="3.5"
+            android:summary="Tension critique d'une cellule"/>
+
+        <EditTextPreference
+            android:key="batterieTensionCrit"
+            android:foregroundTint="@color/blanc"
+            android:title="Tension critique : Batterie"
+            android:defaultValue="10.5"
+            android:summary="Tension critique de la batterie"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

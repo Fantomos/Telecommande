@@ -11,6 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -128,6 +129,7 @@ public class JoystickView extends View
     private Paint mPaintText;
 
     private Paint mPaintBitmapButton;
+    private Drawable mBackgroundDrawable;
     private Bitmap mButtonBitmap;
 
 
@@ -299,6 +301,7 @@ public class JoystickView extends View
             mBackgroundSizeRatio = styledAttributes.getFraction(R.styleable.JoystickView_JV_backgroundSizeRatio, 1, 1, 0.75f);
             mButtonDirection = styledAttributes.getInteger(R.styleable.JoystickView_JV_buttonDirection, BUTTON_DIRECTION_BOTH);
             mHalfJoystick = styledAttributes.getBoolean(R.styleable.JoystickView_JV_halfJoystick, DEFAULT_HALF_JOYSTICK);
+            mBackgroundDrawable = styledAttributes.getDrawable(R.styleable.JoystickView_JV_backgroundImage);
         } finally {
             styledAttributes.recycle();
         }
@@ -368,16 +371,33 @@ public class JoystickView extends View
         // Draw the border depending of mButtonDirection
         if(mButtonDirection == 0){
             canvas.drawCircle(mFixedCenterX, mFixedCenterY, mBorderRadius, mPaintCircleBorder); // Draw the circle
-            canvas.drawCircle(mFixedCenterX, mFixedCenterY, mBackgroundRadius, mPaintBackground);// Draw the background
+            if(mBackgroundDrawable != null){
+                mBackgroundDrawable.setBounds((int)(Math.round(getWidth()/2) - mBackgroundRadius),(int)(Math.round(getHeight() / 2) - mBackgroundRadius),(int)(Math.round(getWidth() / 2) + mBackgroundRadius), (int)(Math.round(getHeight() / 2) + mBackgroundRadius));
+                mBackgroundDrawable.draw(canvas);
+            }
+            else{
+                canvas.drawCircle(mFixedCenterX, mFixedCenterY, mBackgroundRadius, mPaintBackground);// Draw the background
+            }
+
         }
         else if(mButtonDirection < 0) {
             canvas.drawRect(Math.round(getWidth() / 2) - mBorderRadius, Math.round(getHeight() / 2) - mButtonRadius - 20, Math.round(getWidth() / 2) + mBorderRadius, Math.round(getHeight() / 2) + mButtonRadius + 20, mPaintCircleBorder);  // Draw the horizontal rectangle
-            canvas.drawRect(Math.round(getWidth() / 2) - mBackgroundRadius, Math.round(getHeight() / 2) - mButtonRadius - 18, Math.round(getWidth() / 2) + mBackgroundRadius, Math.round(getHeight() / 2) + mButtonRadius + 18, mPaintBackground);// Draw the background
+            if(mBackgroundDrawable != null){
+                mBackgroundDrawable.setBounds((int)(Math.round(getWidth() / 2) - mBackgroundRadius), (int)(Math.round(getHeight() / 2) - mButtonRadius - 18), (int)(Math.round(getWidth() / 2) + mBackgroundRadius), (int)(Math.round(getHeight() / 2) + mButtonRadius + 18));
+                mBackgroundDrawable.draw(canvas);
+            }else{
+                canvas.drawRect(Math.round(getWidth() / 2) - mBackgroundRadius, Math.round(getHeight() / 2) - mButtonRadius - 18, Math.round(getWidth() / 2) + mBackgroundRadius, Math.round(getHeight() / 2) + mButtonRadius + 18, mPaintBackground);// Draw the background
+            }
             canvas.drawText(String.format("%d %%",getStrength()),mPosX + mFixedCenterX - mCenterX-30,Math.round(getHeight() / 2) - mButtonRadius - 80,mPaintText);
         }
         else {  // Draw the vertical rectangle
             canvas.drawRect(Math.round(getWidth() / 2)- mButtonRadius - 20, Math.round(getHeight() / 2) - mBorderRadius, Math.round(getWidth() / 2) + mButtonRadius + 20, Math.round(getHeight() / 2) + mBorderRadius, mPaintCircleBorder);
-            canvas.drawRect(Math.round(getWidth() / 2) - mButtonRadius - 18, Math.round(getHeight() / 2) - mBackgroundRadius, Math.round(getWidth() / 2) + mButtonRadius + 18, Math.round(getHeight() / 2) + mBackgroundRadius, mPaintBackground);
+            if(mBackgroundDrawable != null){
+                mBackgroundDrawable.setBounds((int)(Math.round(getWidth() / 2) - mButtonRadius - 18), (int)(Math.round(getHeight() / 2) - mBackgroundRadius), (int)(Math.round(getWidth() / 2) + mButtonRadius + 18), (int)(Math.round(getHeight() / 2) + mBackgroundRadius));
+                mBackgroundDrawable.draw(canvas);
+            }else {
+                canvas.drawRect(Math.round(getWidth() / 2) - mButtonRadius - 18, Math.round(getHeight() / 2) - mBackgroundRadius, Math.round(getWidth() / 2) + mButtonRadius + 18, Math.round(getHeight() / 2) + mBackgroundRadius, mPaintBackground);
+            }
             canvas.drawText(String.format("%d %%",getStrength()),Math.round(getWidth() / 2) + 150,mPosY + mFixedCenterY - mCenterY + 20,mPaintText);
         }
         //

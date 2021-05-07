@@ -52,6 +52,8 @@ public class Joystick extends AppCompatActivity {
     private boolean lockEnabled = false;
     private int tensionMax = 15;
     private int resolutionMax = 1024;
+    private double batterieTensionCrit = 10.5;
+    private double celluleTensionCrit = 3.5;
 
     private JoystickView joystick;
     private EditText periodeInput;
@@ -84,21 +86,26 @@ public class Joystick extends AppCompatActivity {
         batteryMeter = findViewById(R.id.batteryMeter);
         lockText = findViewById(R.id.lock);
 
+        lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
+        tensionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("tensionMax","15"));
+        resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
+        batterieTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("batterieTensionCrit","10.5"));
+        celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
+
         tensionTot.setText("??.?? V");
         tensionCell1.setText("Cellule  1  : ??.?? V");
         tensionCell2.setText("Cellule 2  : ??.?? V");
         tensionCell3.setText("Cellule 3  : ??.?? V");
         batteryMeter.setChargeLevel(null);
-        batteryMeter.setCriticalChargeLevel((int)Math.round(((Constantes.batterieTensionCrit-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
+        batteryMeter.setCriticalChargeLevel((int)Math.round(((batterieTensionCrit-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
 
-        lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
-        tensionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("tensionMax","15"));
-        resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
+
+
+
         joystick = (JoystickView) findViewById(R.id.joystickView);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
         setLocked(true);
-
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
@@ -256,28 +263,28 @@ public class Joystick extends AppCompatActivity {
             tensionCell2.setText(String.format("Cellule 2 : %.2f V",valueTensionCell2));
             tensionCell3.setText(String.format("Cellule 3 : %.2f V",valueTensionCell3));
 
-            if(valueTensionTot <= Constantes.batterieTensionCrit){
+            if(valueTensionTot <= batterieTensionCrit){
                 tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
             }else{
                 tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
             }
-            if(valueTensionCell1 <= Constantes.celluleTensionCrit){
+            if(valueTensionCell1 <= celluleTensionCrit){
                 tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
             }else{
                 tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
             }
-            if(valueTensionCell2 <= Constantes.celluleTensionCrit){
+            if(valueTensionCell2 <= celluleTensionCrit){
                 tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
             }else{
                 tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
             }
-            if(valueTensionCell3 <= Constantes.celluleTensionCrit){
+            if(valueTensionCell3 <= celluleTensionCrit){
                 tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
             }else{
                 tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
             }
 
-            if(valueTensionCell3 <= Constantes.celluleTensionCrit || valueTensionCell2 <= Constantes.celluleTensionCrit || valueTensionCell1 <= Constantes.celluleTensionCrit || valueTensionTot <= Constantes.batterieTensionCrit){
+            if(valueTensionCell3 <= celluleTensionCrit || valueTensionCell2 <= celluleTensionCrit || valueTensionCell1 <= celluleTensionCrit || valueTensionTot <= batterieTensionCrit){
                 setLocked(true);
             }
             else{
@@ -320,6 +327,7 @@ public class Joystick extends AppCompatActivity {
             }else{
                 joystick.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
                 joystick.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
+
                 joystick.setAlpha(1f);
                 lockText.setVisibility(View.INVISIBLE);
 
