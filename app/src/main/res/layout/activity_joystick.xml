@@ -193,13 +193,14 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/periodeInputLayout"
-        android:layout_width="250dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:textColorHint="@color/blanc"
         app:errorEnabled="false"
         app:layout_constraintBottom_toTopOf="@id/vitesse"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/switch2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider13">
 
@@ -246,5 +247,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/joystickView"
         app:layout_constraintVertical_bias="0.25" />
+
+    <Switch
+        android:id="@+id/switch2"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/audiowide"
+        android:switchPadding="20dp"
+        android:text="Démarrage"
+        android:textColor="@color/blanc"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/vitesse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/periodeInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/periodeInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

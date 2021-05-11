@@ -201,7 +201,6 @@
         android:textColorHint="@color/blanc"
         android:translationZ="5dp"
         app:errorEnabled="false"
-        app:layout_constraintBottom_toBottomOf="@+id/battery"
         app:layout_constraintEnd_toStartOf="@+id/battery"
         app:layout_constraintTop_toTopOf="@+id/battery">
 
@@ -253,4 +252,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/joystickSpeed"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/audiowide"
+        android:text="Démarrage"
+        app:layout_constraintBottom_toBottomOf="@+id/battery"
+        app:layout_constraintEnd_toEndOf="@+id/periodeInputLayout"
+        app:layout_constraintStart_toStartOf="@+id/periodeInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/periodeInputLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>
