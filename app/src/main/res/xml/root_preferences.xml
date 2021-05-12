@@ -57,4 +57,13 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Moteur">
+        <EditTextPreference
+            android:key="delaisRestart"
+            android:foregroundTint="@color/blanc"
+            android:title="Delais de rédémarrage"
+            android:defaultValue="5000"
+            android:summary="Temps avant le redémarrage du moteur (en ms)"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>

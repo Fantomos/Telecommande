@@ -3,7 +3,7 @@ package com.tl.tlcommande;
 public class Constantes {
 
     public static final int directionMax = 127;
-    public static final int vitesseMax = 127;
+    public static final int vitesseMax = 120;
     public static final int vitesseNulle = 0;
     public static final int directionNulle = 64;
     public static final int periodeTransmissionDefaut = 25;

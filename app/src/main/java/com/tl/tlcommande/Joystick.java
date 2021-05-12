@@ -17,12 +17,15 @@ import me.aflak.bluetooth.interfaces.BluetoothCallback;
 import me.aflak.bluetooth.interfaces.DeviceCallback;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +51,6 @@ public class Joystick extends AppCompatActivity {
     private double valueTensionCell1 = 0;
     private double valueTensionCell2 = 0;
     private double valueTensionCell3 = 0;
-    private boolean locked = true;
     private boolean lockEnabled = false;
     private int tensionMax = 15;
     private int resolutionMax = 1024;
@@ -63,6 +65,9 @@ public class Joystick extends AppCompatActivity {
     private int interval;
     private Handler handler;
     private boolean intervalChange = false;
+    private int delaisRestart = 5000;
+
+    private Switch demarrage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,12 +90,14 @@ public class Joystick extends AppCompatActivity {
         tensionCell3 = findViewById(R.id.tensionCell3);
         batteryMeter = findViewById(R.id.batteryMeter);
         lockText = findViewById(R.id.lock);
+        demarrage = findViewById(R.id.switch1);
 
         lockEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("lock",false);
         tensionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("tensionMax","15"));
         resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
         batterieTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("batterieTensionCrit","10.5"));
         celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
+        delaisRestart = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("delaisRestart","5000"));
 
         tensionTot.setText("??.?? V");
         tensionCell1.setText("Cellule  1  : ??.?? V");
@@ -105,7 +112,6 @@ public class Joystick extends AppCompatActivity {
         joystick = (JoystickView) findViewById(R.id.joystickView);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
-        setLocked(true);
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
@@ -113,17 +119,15 @@ public class Joystick extends AppCompatActivity {
                 // Remet à l'échelle la valeur de l'angle pour la direction
                 if(angle > 180){ // Si curseur dans la partie basse du joystick
                     direction = (int)Math.round((360-angle)*Constantes.directionMax/180.0);
-                    vitesse = (int)Math.round(Constantes.vitesseNulle - strength*(Constantes.vitesseNulle)/100.0);
+                    vitesse = (int)Math.round(Constantes.vitesseNulle - strength*(Constantes.vitesseNulle)/100.0) + 7;
                 }
                 else { // Si curseur dans la partie haute du joystick
                     direction = (int)Math.round(angle*Constantes.directionMax/180.0);
-                    vitesse = (int)Math.round(strength*(Constantes.vitesseMax - Constantes.vitesseNulle)/100.0 + Constantes.vitesseNulle);
+                    vitesse = (int)Math.round(strength*(Constantes.vitesseMax - Constantes.vitesseNulle)/100.0 + Constantes.vitesseNulle) + 7;
                 }
 
                 forceText.setText(String.format("(Force : %d %%)",strength));
                 angleText.setText(String.format("(Angle : %d °)",angle));
-                vitesseText.setText(String.format("Vitesse : %d",vitesse));
-                directionText.setText(String.format("Direction : %d",direction));
 
             }
         },1);
@@ -142,6 +146,44 @@ public class Joystick extends AppCompatActivity {
 
 
         handler = new Handler();
+
+        joystick.setEnabled(false);
+        joystick.setBorderColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
+        joystick.setButtonColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
+        joystick.setAlpha(0.25f);
+        lockText.setVisibility(View.VISIBLE);
+        demarrage.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    joystick.setBorderColor(ContextCompat.getColor(Joystick.this,R.color.blanc));
+                    joystick.setButtonColor(ContextCompat.getColor(Joystick.this,R.color.blanc));
+                    joystick.setAlpha(1f);
+                    lockText.setVisibility(View.INVISIBLE);
+                    joystick.setEnabled(true);
+                    demarrage.setText("Start");
+                    demarrage.setTextColor(ContextCompat.getColor(Joystick.this,R.color.vert));
+                    vitesse = 7;
+                }
+                else{
+                    joystick.setEnabled(false);
+                    vitesse = 0;
+                    joystick.setBorderColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
+                    joystick.setButtonColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
+                    joystick.setAlpha(0.25f);
+                    lockText.setVisibility(View.VISIBLE);
+                    demarrage.setText("Stop");
+                    demarrage.setTextColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
+                    demarrage.setClickable(false);
+                    final Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            demarrage.setClickable(true);
+                        }
+                    }, delaisRestart);
+                }
+            }
+        });
     }
 
 
@@ -154,13 +196,12 @@ public class Joystick extends AppCompatActivity {
                     intervalChange = false;
                 }
             } finally {
-                if(!locked | !lockEnabled) {
-                    Log.d("Karara","rara");
+                    vitesseText.setText(String.format("Vitesse : %d",vitesse));
+                    directionText.setText(String.format("Direction : %d",direction));
                     byte[] data = new byte[]{(byte) (vitesse | 0b10000000), (byte) (direction & 0b01111111)};
                     bluetooth.send(data);
                     paquet++;
                     handler.postDelayed(mStatusChecker, interval);
-                }
             }
         }
     };
@@ -316,22 +357,11 @@ public class Joystick extends AppCompatActivity {
     };
 
     private void setLocked(boolean etat){
-        locked = etat;
-        if(lockEnabled) {
-            joystick.setEnabled(!etat);
-            if(locked){
-                joystick.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
-                joystick.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
-                joystick.setAlpha(0.25f);
-                lockText.setVisibility(View.VISIBLE);
-            }else{
-                joystick.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
-                joystick.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
-
-                joystick.setAlpha(1f);
-                lockText.setVisibility(View.INVISIBLE);
-
-            }
+        if(lockEnabled && etat) {
+            demarrage.setChecked(false);
+            demarrage.setClickable(false);
+        }else if(lockEnabled && !etat){
+            demarrage.setClickable(true);
         }
     }
 

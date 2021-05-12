@@ -17,6 +17,7 @@ import me.aflak.bluetooth.interfaces.BluetoothCallback;
 import me.aflak.bluetooth.interfaces.DeviceCallback;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,7 +26,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,13 +67,15 @@ public class Joystick2 extends AppCompatActivity {
     private double valueTensionCell2;
     private double valueTensionCell3;
 
-    private boolean locked = true;
     private boolean lockEnabled = false;
+    private TextView lock;
     private int tensionMax = 15;
     private int resolutionMax = 1024;
     private double batterieTensionCrit = 10.5;
     private double celluleTensionCrit = 3.5;
-    
+    private int delaisRestart = 5000;
+    private Switch demarrage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,20 +108,22 @@ public class Joystick2 extends AppCompatActivity {
         resolutionMax = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("resolutionMax","1024"));
         batterieTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("batterieTensionCrit","10.5"));
         celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
+        delaisRestart = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("delaisRestart","5000"));
 
         joystickVitesse = (JoystickView) findViewById(R.id.joystickSpeed);
         joystickDirection = (JoystickView) findViewById(R.id.joystickDirection);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
-        setLocked(true);
+        demarrage = findViewById(R.id.switch1);
+        lock = findViewById(R.id.lock);
         joystickVitesse.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
                 if(angle>180){ // Si curseur dans la partie basse du joystick
                     //vitesse = (int)Math.round(63.5 - strength*63.5/100);
-                    vitesse = (int)Math.round(Constantes.vitesseNulle - strength*(Constantes.vitesseNulle)/100.0);
+                    vitesse = (int)Math.round(Constantes.vitesseNulle - strength*(Constantes.vitesseNulle)/100.0)+7;
                 }else{ // Si curseur dans la partie haute du joystick
-                    vitesse = (int)Math.round(strength*(Constantes.vitesseMax - Constantes.vitesseNulle)/100.0 + Constantes.vitesseNulle);
+                    vitesse = (int)Math.round(strength*(Constantes.vitesseMax - Constantes.vitesseNulle)/100.0 + Constantes.vitesseNulle)+7;
                 }
             }
         },1);
@@ -143,6 +150,55 @@ public class Joystick2 extends AppCompatActivity {
 
         handler = new Handler();
 
+        joystickDirection.setEnabled(false);
+        joystickVitesse.setEnabled(false);
+        joystickDirection.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
+        joystickDirection.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
+        joystickDirection.setAlpha(0.25f);
+        joystickVitesse.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
+        joystickVitesse.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
+        joystickVitesse.setAlpha(0.25f);
+        lock.setVisibility(View.VISIBLE);
+        demarrage.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    vitesse = 7;
+                    joystickDirection.setEnabled(true);
+                    joystickVitesse.setEnabled(true);
+                    joystickDirection.setBorderColor(ContextCompat.getColor(Joystick2.this,R.color.blanc));
+                    joystickDirection.setButtonColor(ContextCompat.getColor(Joystick2.this,R.color.blanc));
+                    joystickDirection.setAlpha(1f);
+                    joystickVitesse.setBorderColor(ContextCompat.getColor(Joystick2.this,R.color.blanc));
+                    joystickVitesse.setButtonColor(ContextCompat.getColor(Joystick2.this,R.color.blanc));
+                    joystickVitesse.setAlpha(1f);
+                    lock.setVisibility(View.INVISIBLE);
+                    demarrage.setText("Start");
+                    demarrage.setTextColor(ContextCompat.getColor(Joystick2.this,R.color.vert));
+                }
+                else{
+                    vitesse = 0;
+                    joystickDirection.setEnabled(false);
+                    joystickVitesse.setEnabled(false);
+                    joystickDirection.setBorderColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
+                    joystickDirection.setButtonColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
+                    joystickDirection.setAlpha(0.25f);
+                    joystickVitesse.setBorderColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
+                    joystickVitesse.setButtonColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
+                    joystickVitesse.setAlpha(0.25f);
+                    lock.setVisibility(View.VISIBLE);
+                    demarrage.setText("Stop");
+                    demarrage.setTextColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
+                    demarrage.setClickable(false);
+                    final Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            demarrage.setClickable(true);
+                        }
+                    }, delaisRestart);
+                }
+            }
+        });
     }
 
 
@@ -155,11 +211,10 @@ public class Joystick2 extends AppCompatActivity {
                     intervalChange = false;
                 }
             } finally {
-                if(!locked | !lockEnabled) {
-                    byte[] data = new byte[]{(byte) (vitesse | 0b10000000), (byte) (direction & 0b01111111)};
-                    bluetooth.send(data);
-                    handler.postDelayed(mStatusChecker, interval);
-                }
+                Log.d("Vitessse",String.valueOf(vitesse));
+                byte[] data = new byte[]{(byte) (vitesse | 0b10000000), (byte) (direction & 0b01111111)};
+                bluetooth.send(data);
+                handler.postDelayed(mStatusChecker, interval);
             }
         }
     };
@@ -316,27 +371,12 @@ public class Joystick2 extends AppCompatActivity {
     };
 
     private void setLocked(boolean etat){
-        locked = etat;
-        if(lockEnabled) {
-            joystickDirection.setEnabled(!etat);
-            joystickVitesse.setEnabled(!etat);
-            if(locked){
-                joystickDirection.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
-                joystickDirection.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
-                joystickDirection.setAlpha(0.25f);
-                joystickVitesse.setBorderColor(ContextCompat.getColor(this,R.color.rouge));
-                joystickVitesse.setButtonColor(ContextCompat.getColor(this,R.color.rouge));
-                joystickVitesse.setAlpha(0.25f);
-            }else{
-                joystickDirection.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
-                joystickDirection.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
-                joystickDirection.setAlpha(1f);
-                joystickVitesse.setBorderColor(ContextCompat.getColor(this,R.color.blanc));
-                joystickVitesse.setButtonColor(ContextCompat.getColor(this,R.color.blanc));
-                joystickVitesse.setAlpha(1f);
-            }
+        if(lockEnabled && etat) {
+            demarrage.setChecked(false);
+            demarrage.setClickable(false);
+        }else if(lockEnabled && !etat){
+            demarrage.setClickable(true);
         }
-
     }
 
     private void backMenu(){

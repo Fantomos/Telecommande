@@ -31,4 +31,17 @@
         <item name="colorAccent">@color/blanc</item>
     </style>
 
+    <style name="SCBSwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@color/vert</item>
+
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">@color/rouge
+        </item>
+
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">#42221f1f
+        </item>
+    </style>
+
 </resources>

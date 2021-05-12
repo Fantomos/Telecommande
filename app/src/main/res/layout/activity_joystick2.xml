@@ -195,12 +195,13 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/periodeInputLayout"
         android:layout_width="210dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
         android:textColorHint="@color/blanc"
         android:translationZ="5dp"
         app:errorEnabled="false"
+        app:layout_constraintBottom_toTopOf="@+id/switch1"
         app:layout_constraintEnd_toStartOf="@+id/battery"
         app:layout_constraintTop_toTopOf="@+id/battery">
 
@@ -253,12 +254,33 @@
         app:layout_constraintStart_toEndOf="@+id/joystickSpeed"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Switch
-        android:id="@+id/switch1"
+    <TextView
+        android:id="@+id/lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/audiowide"
-        android:text="Démarrage"
+        android:text="Verrouillé"
+        android:textColor="@color/rouge"
+        android:textSize="26sp"
+        android:translationZ="5dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/joystickDirection"
+        app:layout_constraintStart_toStartOf="@+id/joystickSpeed"
+        app:layout_constraintTop_toBottomOf="@+id/switch1"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:fontFamily="@font/audiowide"
+        android:switchPadding="20dp"
+        android:text="Start"
+        android:textColor="@color/blanc"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:theme="@style/SCBSwitch"
         app:layout_constraintBottom_toBottomOf="@+id/battery"
         app:layout_constraintEnd_toEndOf="@+id/periodeInputLayout"
         app:layout_constraintStart_toStartOf="@+id/periodeInputLayout"
