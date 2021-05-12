@@ -257,7 +257,6 @@
         android:layout_marginBottom="8dp"
         android:checked="false"
         android:fontFamily="@font/audiowide"
-        android:foreground="@color/rouge"
         android:switchPadding="20dp"
         android:text="Stop"
         android:textColor="@color/rouge"
