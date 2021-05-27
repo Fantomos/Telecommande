@@ -4,8 +4,10 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -55,7 +57,7 @@ public class Joystick2 extends AppCompatActivity {
     private JoystickView joystickDirection;
     private Handler handler;
     private boolean intervalChange = false;
-
+    private boolean autostop = true;
     private TextView tensionTot;
     private TextView tensionCell1;
     private TextView tensionCell2;
@@ -109,34 +111,58 @@ public class Joystick2 extends AppCompatActivity {
         batterieTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("batterieTensionCrit","10.5"));
         celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
         delaisRestart = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("delaisRestart","5000"));
-
+        autostop = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("autostop",true);
         joystickVitesse = (JoystickView) findViewById(R.id.joystickSpeed);
         joystickDirection = (JoystickView) findViewById(R.id.joystickDirection);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
         demarrage = findViewById(R.id.switch1);
         lock = findViewById(R.id.lock);
+
         joystickVitesse.setOnMoveListener(new JoystickView.OnMoveListener() {
-            @Override
-            public void onMove(int angle, int strength) {
-                if(angle>180){ // Si curseur dans la partie basse du joystick
-                    //vitesse = (int)Math.round(63.5 - strength*63.5/100);
-                    vitesse = (int)Math.round(Constantes.vitesseNulle - strength*(Constantes.vitesseNulle)/100.0)+7;
-                }else{ // Si curseur dans la partie haute du joystick
-                    vitesse = (int)Math.round(strength*(Constantes.vitesseMax - Constantes.vitesseNulle)/100.0 + Constantes.vitesseNulle)+7;
+                @Override
+                public void onMove(int angle, int strength) {
+                    if (!joystickDirection.isEnabled()) {
+                        vitesse = 0;
+                    } else {
+                        if (angle > 180) { // Si curseur dans la partie basse du joystick
+                            //vitesse = (int)Math.round(63.5 - strength*63.5/100);
+                            vitesse = (int) Math.round(Constantes.vitesseNulle - strength * (Constantes.vitesseNulle) / 100.0) + 7;
+                        } else { // Si curseur dans la partie haute du joystick
+                            vitesse = (int) Math.round(strength * (Constantes.vitesseMax - Constantes.vitesseNulle) / 100.0 + Constantes.vitesseNulle) + 7;
+                        }
+                    }
                 }
-            }
-        },1);
+                }, 1);
+
+
+
         joystickDirection.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                if(angle == 0){
-                    direction = (int)Math.round(Constantes.directionMax/2.0 - strength*Constantes.directionMax/200.0);
-                }else{
-                    direction = (int)Math.round(Constantes.directionMax/2.0 + strength*Constantes.directionMax/200.0);
+                if(!joystickDirection.isEnabled()){
+                    direction = Constantes.directionNulle;
+                }else {
+                    if (angle == 0) {
+                        direction = (int) Math.round(Constantes.directionMax / 2.0 + strength * Constantes.directionMax / 200.0);
+                    } else {
+                        direction = (int) Math.round(Constantes.directionMax / 2.0 - strength * Constantes.directionMax / 200.0);
+                    }
                 }
             }
         },1);
+
+        if(autostop) {
+            joystickVitesse.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (motionEvent.getAction() == android.view.MotionEvent.ACTION_UP) {
+                        demarrage.setChecked(false);
+                    }
+                    return false;
+                }
+            });
+        }
 
         periodeInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
@@ -160,8 +186,10 @@ public class Joystick2 extends AppCompatActivity {
         joystickVitesse.setAlpha(0.25f);
         lock.setVisibility(View.VISIBLE);
         demarrage.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
+                    Log.d("Set","set");
                     vitesse = 7;
                     joystickDirection.setEnabled(true);
                     joystickVitesse.setEnabled(true);
@@ -174,9 +202,14 @@ public class Joystick2 extends AppCompatActivity {
                     lock.setVisibility(View.INVISIBLE);
                     demarrage.setText("Start");
                     demarrage.setTextColor(ContextCompat.getColor(Joystick2.this,R.color.vert));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        demarrage.setThumbTintList(ContextCompat.getColorStateList(Joystick2.this,R.color.vert));
+                    }
                 }
                 else{
                     vitesse = 0;
+                    joystickVitesse.resetButtonPosition();
+                    joystickDirection.resetButtonPosition();
                     joystickDirection.setEnabled(false);
                     joystickVitesse.setEnabled(false);
                     joystickDirection.setBorderColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
@@ -189,6 +222,9 @@ public class Joystick2 extends AppCompatActivity {
                     demarrage.setText("Stop");
                     demarrage.setTextColor(ContextCompat.getColor(Joystick2.this,R.color.rouge));
                     demarrage.setClickable(false);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        demarrage.setThumbTintList(ContextCompat.getColorStateList(Joystick2.this,R.color.rouge));
+                    }
                     final Handler handler = new Handler(Looper.getMainLooper());
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -211,7 +247,7 @@ public class Joystick2 extends AppCompatActivity {
                     intervalChange = false;
                 }
             } finally {
-                Log.d("Vitessse",String.valueOf(vitesse));
+                Log.d("Vitessse",String.valueOf(direction));
                 byte[] data = new byte[]{(byte) (vitesse | 0b10000000), (byte) (direction & 0b01111111)};
                 bluetooth.send(data);
                 handler.postDelayed(mStatusChecker, interval);
@@ -257,12 +293,14 @@ public class Joystick2 extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(bluetooth.isConnected()) {
-            bluetooth.disconnect();
+        if(bluetooth != null){
+            if(bluetooth.isConnected()) {
+                bluetooth.disconnect();
+            }
+            bluetooth.removeDeviceCallback();
+            bluetooth.removeBluetoothCallback();
+            bluetooth.onStop();
         }
-        bluetooth.removeDeviceCallback();
-        bluetooth.removeBluetoothCallback();
-        bluetooth.onStop();
         handler.removeCallbacks(mStatusChecker);
     }
 

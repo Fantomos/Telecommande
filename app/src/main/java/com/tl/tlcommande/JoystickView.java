@@ -398,7 +398,11 @@ public class JoystickView extends View
             }else {
                 canvas.drawRect(Math.round(getWidth() / 2) - mButtonRadius - 18, Math.round(getHeight() / 2) - mBackgroundRadius, Math.round(getWidth() / 2) + mButtonRadius + 18, Math.round(getHeight() / 2) + mBackgroundRadius, mPaintBackground);
             }
+            canvas.save();
+            canvas.rotate(180);
             canvas.drawText(String.format("%d %%",getStrength()),Math.round(getWidth() / 2) + 150,mPosY + mFixedCenterY - mCenterY + 20,mPaintText);
+            canvas.restore();
+            canvas.save();
         }
         //
 

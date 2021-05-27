@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context="com.tl.tlcommande.Joystick">
+    tools:context="com.tl.tlcommande.Joystick"
+    android:keepScreenOn="true">
 
     <View
         android:id="@+id/divider12"
@@ -265,6 +266,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:theme="@style/SCBSwitch"
+        android:thumbTint="@color/rouge"
         app:layout_constraintBottom_toTopOf="@+id/vitesse"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/periodeInputLayout"

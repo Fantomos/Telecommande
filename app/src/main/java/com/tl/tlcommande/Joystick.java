@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
@@ -52,6 +54,7 @@ public class Joystick extends AppCompatActivity {
     private double valueTensionCell2 = 0;
     private double valueTensionCell3 = 0;
     private boolean lockEnabled = false;
+    private boolean autostop = true;
     private int tensionMax = 15;
     private int resolutionMax = 1024;
     private double batterieTensionCrit = 10.5;
@@ -98,6 +101,7 @@ public class Joystick extends AppCompatActivity {
         batterieTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("batterieTensionCrit","10.5"));
         celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
         delaisRestart = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("delaisRestart","5000"));
+        autostop = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("autostop",true);
 
         tensionTot.setText("??.?? V");
         tensionCell1.setText("Cellule  1  : ??.?? V");
@@ -115,23 +119,37 @@ public class Joystick extends AppCompatActivity {
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                // Remet à l'échelle la valeur de la force pour la vitesse
-                // Remet à l'échelle la valeur de l'angle pour la direction
-                if(angle > 180){ // Si curseur dans la partie basse du joystick
-                    direction = (int)Math.round((360-angle)*Constantes.directionMax/180.0);
-                    vitesse = (int)Math.round(Constantes.vitesseNulle - strength*(Constantes.vitesseNulle)/100.0) + 7;
-                }
-                else { // Si curseur dans la partie haute du joystick
-                    direction = (int)Math.round(angle*Constantes.directionMax/180.0);
-                    vitesse = (int)Math.round(strength*(Constantes.vitesseMax - Constantes.vitesseNulle)/100.0 + Constantes.vitesseNulle) + 7;
-                }
-
+                 if(!joystick.isEnabled()){
+                     vitesse = 0;
+                    direction = Constantes.directionNulle;
+                }else {
+                     // Remet à l'échelle la valeur de la force pour la vitesse
+                     // Remet à l'échelle la valeur de l'angle pour la direction
+                     if (angle > 180) { // Si curseur dans la partie basse du joystick
+                         direction = (int) Math.round((360 - angle) * Constantes.directionMax / 180.0);
+                         vitesse = (int) Math.round(Constantes.vitesseNulle - strength * (Constantes.vitesseNulle) / 100.0) + 7;
+                     } else { // Si curseur dans la partie haute du joystick
+                         direction = (int) Math.round(angle * Constantes.directionMax / 180.0);
+                         vitesse = (int) Math.round(strength * (Constantes.vitesseMax - Constantes.vitesseNulle) / 100.0 + Constantes.vitesseNulle) + 7;
+                     }
+                 }
                 forceText.setText(String.format("(Force : %d %%)",strength));
                 angleText.setText(String.format("(Angle : %d °)",angle));
 
             }
         },1);
 
+    if(autostop) {
+        joystick.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == android.view.MotionEvent.ACTION_UP) {
+                    demarrage.setChecked(false);
+                }
+                return false;
+            }
+        });
+    }
 
         periodeInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
@@ -162,11 +180,15 @@ public class Joystick extends AppCompatActivity {
                     joystick.setEnabled(true);
                     demarrage.setText("Start");
                     demarrage.setTextColor(ContextCompat.getColor(Joystick.this,R.color.vert));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        demarrage.setThumbTintList(ContextCompat.getColorStateList(Joystick.this,R.color.vert));
+                    }
                     vitesse = 7;
                 }
                 else{
-                    joystick.setEnabled(false);
                     vitesse = 0;
+                    joystick.resetButtonPosition();
+                    joystick.setEnabled(false);
                     joystick.setBorderColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
                     joystick.setButtonColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
                     joystick.setAlpha(0.25f);
@@ -174,6 +196,9 @@ public class Joystick extends AppCompatActivity {
                     demarrage.setText("Stop");
                     demarrage.setTextColor(ContextCompat.getColor(Joystick.this,R.color.rouge));
                     demarrage.setClickable(false);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        demarrage.setThumbTintList(ContextCompat.getColorStateList(Joystick.this,R.color.rouge));
+                    }
                     final Handler handler = new Handler(Looper.getMainLooper());
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -293,43 +318,44 @@ public class Joystick extends AppCompatActivity {
         @Override
         public void onMessage(byte[] message) {
 
-            valueTensionCell1 = (((message[1]&0xFF)<<8 | (message[0]&0xFF)))*tensionMax/resolutionMax;
-            valueTensionCell2 = (((message[3]&0xFF)<<8 | (message[2]&0xFF)))*tensionMax/resolutionMax;
-            valueTensionCell3 = (((message[5]&0xFF)<<8 | (message[4]&0xFF)))*tensionMax/resolutionMax;
-            valueTensionTot =  valueTensionCell1 +  valueTensionCell2 +  valueTensionCell3;
-            Log.d("data", String.valueOf(valueTensionTot));
-            batteryMeter.setChargeLevel((int) Math.round(((valueTensionTot-Constantes.batterieTensionMin)/(Constantes.batterieTensionMax-Constantes.batterieTensionMin))*100));
-            tensionTot.setText(String.format("%.2f V",valueTensionTot));
-            tensionCell1.setText(String.format("Cellule  1 : %.2f V",valueTensionCell1));
-            tensionCell2.setText(String.format("Cellule 2 : %.2f V",valueTensionCell2));
-            tensionCell3.setText(String.format("Cellule 3 : %.2f V",valueTensionCell3));
+            if (message.length == 6) {
+                valueTensionCell1 = (((message[1] & 0xFF) << 8 | (message[0] & 0xFF))) * (double) tensionMax / (double) resolutionMax;
+                valueTensionCell2 = (((message[3] & 0xFF) << 8 | (message[2] & 0xFF))) * (double) tensionMax / (double) resolutionMax;
+                valueTensionCell3 = (((message[5] & 0xFF) << 8 | (message[4] & 0xFF))) * (double) tensionMax / (double) resolutionMax;
+                valueTensionTot = valueTensionCell1 + valueTensionCell2 + valueTensionCell3;
+                Log.d("data", String.valueOf(valueTensionTot));
+                batteryMeter.setChargeLevel((int) Math.round(((valueTensionTot - Constantes.batterieTensionMin) / (Constantes.batterieTensionMax - Constantes.batterieTensionMin)) * 100));
+                tensionTot.setText(String.format("%.2f V", valueTensionTot));
+                tensionCell1.setText(String.format("Cellule  1 : %.2f V", valueTensionCell1));
+                tensionCell2.setText(String.format("Cellule 2 : %.2f V", valueTensionCell2));
+                tensionCell3.setText(String.format("Cellule 3 : %.2f V", valueTensionCell3));
 
-            if(valueTensionTot <= batterieTensionCrit){
-                tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionTot.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
-            if(valueTensionCell1 <= celluleTensionCrit){
-                tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionCell1.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
-            if(valueTensionCell2 <= celluleTensionCrit){
-                tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionCell2.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
-            if(valueTensionCell3 <= celluleTensionCrit){
-                tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.rouge));
-            }else{
-                tensionCell3.setTextColor(ContextCompat.getColor(getApplication(),R.color.vert));
-            }
+                if (valueTensionTot <= batterieTensionCrit) {
+                    tensionTot.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionTot.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
+                if (valueTensionCell1 <= celluleTensionCrit) {
+                    tensionCell1.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionCell1.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
+                if (valueTensionCell2 <= celluleTensionCrit) {
+                    tensionCell2.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionCell2.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
+                if (valueTensionCell3 <= celluleTensionCrit) {
+                    tensionCell3.setTextColor(ContextCompat.getColor(getApplication(), R.color.rouge));
+                } else {
+                    tensionCell3.setTextColor(ContextCompat.getColor(getApplication(), R.color.vert));
+                }
 
-            if(valueTensionCell3 <= celluleTensionCrit || valueTensionCell2 <= celluleTensionCrit || valueTensionCell1 <= celluleTensionCrit || valueTensionTot <= batterieTensionCrit){
-                setLocked(true);
-            }
-            else{
-                setLocked(false);
+                if (valueTensionCell3 <= celluleTensionCrit || valueTensionCell2 <= celluleTensionCrit || valueTensionCell1 <= celluleTensionCrit || valueTensionTot <= batterieTensionCrit) {
+                    setLocked(true);
+                } else {
+                    setLocked(false);
+                }
             }
         }
 

@@ -65,5 +65,12 @@
             android:defaultValue="5000"
             android:summary="Temps avant le redémarrage du moteur (en ms)"
             />
+
+        <SwitchPreferenceCompat
+            android:foregroundTint="@color/blanc"
+            app:key="autostop"
+            app:summaryOff="N'arrête pas le moteur lorsque le joystick est relâché"
+            app:summaryOn="Arrête le moteur lorsque le joystick est relâché"
+            app:title="Auto-stop" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -52,7 +52,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
         android:background="@color/blanc"
-        app:layout_constraintBottom_toTopOf="@+id/tiltLayout2"
+        app:layout_constraintBottom_toTopOf="@+id/gyroscopeLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/joystickLayout2" />
@@ -109,7 +109,7 @@
         android:layout_marginEnd="40dp"
         android:backgroundTint="@color/blanc"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/tiltLayout2"
+        app:layout_constraintBottom_toTopOf="@id/gyroscopeLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/joystickLayout"
@@ -169,7 +169,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/tiltLayout2"
+        android:id="@+id/gyroscopeLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
@@ -419,7 +419,7 @@
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tiltLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/gyroscopeLayout2"
         app:layout_constraintVertical_bias="0.9" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

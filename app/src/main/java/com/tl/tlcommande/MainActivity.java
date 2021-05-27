@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout consoleLayout;
     private ConstraintLayout joystickLayout;
     private ConstraintLayout joystick2Layout;
+    private ConstraintLayout gyroscopeLayout;
     private ImageView colorConnection;
     private TextView textConnection;
     private TextView textButtonConnection;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         consoleLayout = findViewById(R.id.consoleLayout);
         joystickLayout = findViewById(R.id.joystickLayout);
         joystick2Layout = findViewById(R.id.joystickLayout2);
+        gyroscopeLayout = findViewById(R.id.gyroscopeLayout2);
         settings = findViewById(R.id.settings);
         askPermissions();
 
@@ -114,6 +116,26 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+    gyroscopeLayout.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(device != null){
+                Intent intent = new Intent(MainActivity.this, Gyroscop.class);
+                intent.putExtra("device", device);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
+            }
+            else{
+                if(toast != null){
+                    toast.cancel();
+                }
+                toast = Toast.makeText(MainActivity.this, "Aucun appareil selectionné", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+    });
+
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

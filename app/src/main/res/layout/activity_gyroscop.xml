@@ -5,8 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context="com.tl.tlcommande.Joystick2"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    tools:context=".Gyroscop">
+
+
+    <TextView
+        android:id="@+id/sensor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="TextView"
+        android:textColor="@color/blanc"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/battery" />
 
     <TextView
         android:id="@+id/textView5"
@@ -14,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/audiowide"
-        android:text="Joystick 2"
+        android:text="Gyroscope"
         android:textAllCaps="true"
         android:textColor="@color/blanc"
         android:textSize="30sp"
@@ -24,80 +38,35 @@
         app:layout_constraintStart_toStartOf="@+id/divider14"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="32dp"
-        android:fontFamily="@font/audiowide"
-        android:text="100 %"
-        android:textColor="@color/blanc"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView12"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginBottom="36dp"
-        android:fontFamily="@font/audiowide"
-        android:text="100 %"
-        android:textColor="@color/blanc"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/textView9"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="70dp"
-        android:fontFamily="@font/audiowide"
-        android:text="G"
-        android:textColor="@color/blanc"
-        app:layout_constraintStart_toStartOf="@+id/joystickDirection"
-        app:layout_constraintTop_toBottomOf="@+id/periodeInputLayout" />
-
-    <TextView
-        android:id="@+id/textView11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:fontFamily="@font/audiowide"
-        android:text="D"
-        android:textColor="@color/blanc"
-        app:layout_constraintEnd_toEndOf="@+id/joystickDirection"
-        app:layout_constraintTop_toTopOf="@+id/textView10" />
-
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:fontFamily="@font/audiowide"
-        android:gravity="right|center_vertical"
-        android:text="0 %"
-        android:textColor="@color/blanc"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/textView8"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/joystickSpeed" />
-
     <View
         android:id="@+id/divider14"
         android:layout_width="0dp"
         android:layout_height="2dp"
-        android:layout_marginStart="90dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/blanc"
         android:translationZ="5dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView8"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView5" />
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:fontFamily="@font/audiowide"
+        android:switchPadding="20dp"
+        android:text="Stop"
+        android:textColor="@color/rouge"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:theme="@style/SCBSwitch"
+        android:thumbTint="@color/rouge"
+        app:layout_constraintBottom_toBottomOf="@+id/battery"
+        app:layout_constraintEnd_toEndOf="@+id/periodeInputLayout"
+        app:layout_constraintStart_toStartOf="@+id/periodeInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/periodeInputLayout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/battery"
@@ -106,7 +75,8 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:translationZ="5dp"
-        app:layout_constraintEnd_toEndOf="@+id/joystickDirection"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/periodeInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/divider14">
 
         <TextView
@@ -196,7 +166,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/periodeInputLayout"
         android:layout_width="210dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:clickable="true"
         android:textColorHint="@color/blanc"
@@ -204,6 +174,7 @@
         app:errorEnabled="false"
         app:layout_constraintBottom_toTopOf="@+id/switch1"
         app:layout_constraintEnd_toStartOf="@+id/battery"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/battery">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -219,72 +190,4 @@
             android:textColor="@color/blanc"
             android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <com.tl.tlcommande.JoystickView
-        android:id="@+id/joystickSpeed"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:translationX="-30dp"
-        app:JV_backgroundSizeRatio="90%"
-        app:JV_borderColor="@color/blanc"
-        app:JV_borderWidth="3dp"
-        app:JV_buttonColor="@color/blanc"
-        app:JV_buttonDirection="vertical"
-        app:JV_buttonSizeRatio="10%"
-        app:JV_fixedCenter="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/joystickDirection"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.tl.tlcommande.JoystickView
-        android:id="@+id/joystickDirection"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="16dp"
-        android:translationY="80dp"
-        app:JV_backgroundSizeRatio="90%"
-        app:JV_borderColor="@color/blanc"
-        app:JV_borderWidth="3dp"
-        app:JV_buttonColor="@color/blanc"
-        app:JV_buttonDirection="horizontal"
-        app:JV_buttonSizeRatio="10%"
-        app:JV_fixedCenter="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/joystickSpeed"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/lock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/audiowide"
-        android:text="Verrouillé"
-        android:textColor="@color/rouge"
-        android:textSize="26sp"
-        android:translationZ="5dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/joystickDirection"
-        app:layout_constraintStart_toStartOf="@+id/joystickSpeed"
-        app:layout_constraintTop_toBottomOf="@+id/switch1"
-        app:layout_constraintVertical_bias="0.25" />
-
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:fontFamily="@font/audiowide"
-        android:switchPadding="20dp"
-        android:text="Stop"
-        android:textColor="@color/rouge"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:theme="@style/SCBSwitch"
-        android:thumbTint="@color/rouge"
-        app:layout_constraintBottom_toBottomOf="@+id/battery"
-        app:layout_constraintEnd_toEndOf="@+id/periodeInputLayout"
-        app:layout_constraintStart_toStartOf="@+id/periodeInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/periodeInputLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>
