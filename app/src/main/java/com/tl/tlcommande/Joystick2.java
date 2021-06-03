@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -30,6 +31,7 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,11 +60,17 @@ public class Joystick2 extends AppCompatActivity {
     private Handler handler;
     private boolean intervalChange = false;
     private boolean autostop = true;
+    private int amplitude = 35;
     private TextView tensionTot;
     private TextView tensionCell1;
     private TextView tensionCell2;
     private TextView tensionCell3;
     private BatteryMeter batteryMeter;
+
+    private MediaPlayer FXPlayer;
+    private ImageView klaxon;
+
+    private int son = 0;
 
     private double valueTensionTot;
     private double valueTensionCell1;
@@ -112,12 +120,30 @@ public class Joystick2 extends AppCompatActivity {
         celluleTensionCrit = Double.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("celluleTensionCrit","3.5"));
         delaisRestart = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("delaisRestart","5000"));
         autostop = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("autostop",true);
+        amplitude = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getInt("directionCoeff",35));
         joystickVitesse = (JoystickView) findViewById(R.id.joystickSpeed);
         joystickDirection = (JoystickView) findViewById(R.id.joystickDirection);
         interval = Constantes.periodeTransmissionDefaut;
         periodeInput.setText(String.valueOf(interval));
         demarrage = findViewById(R.id.switch1);
         lock = findViewById(R.id.lock);
+
+        klaxon = findViewById(R.id.klaxon);
+        klaxon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (son) {
+                    case 0:
+                        playSound(R.raw.move);
+                        son++;
+                        break;
+                    case 1:
+                        playSound(R.raw.getout);
+                        son = 0;
+                        break;
+                }
+            }
+        });
 
         joystickVitesse.setOnMoveListener(new JoystickView.OnMoveListener() {
                 @Override
@@ -144,9 +170,9 @@ public class Joystick2 extends AppCompatActivity {
                     direction = Constantes.directionNulle;
                 }else {
                     if (angle == 0) {
-                        direction = (int) Math.round(Constantes.directionMax / 2.0 + strength * Constantes.directionMax / 200.0);
+                        direction = (int) Math.round(Constantes.directionMax / 2.0 + strength * amplitude / 100.0);
                     } else {
-                        direction = (int) Math.round(Constantes.directionMax / 2.0 - strength * Constantes.directionMax / 200.0);
+                        direction = (int) Math.round(Constantes.directionMax / 2.0 - strength * amplitude / 100.0);
                     }
                 }
             }
@@ -190,6 +216,7 @@ public class Joystick2 extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
                     Log.d("Set","set");
+                    playSound(R.raw.takeoff);
                     vitesse = 7;
                     joystickDirection.setEnabled(true);
                     joystickVitesse.setEnabled(true);
@@ -207,6 +234,7 @@ public class Joystick2 extends AppCompatActivity {
                     }
                 }
                 else{
+                    playSound(R.raw.landing);
                     vitesse = 0;
                     joystickVitesse.resetButtonPosition();
                     joystickDirection.resetButtonPosition();
@@ -236,6 +264,7 @@ public class Joystick2 extends AppCompatActivity {
             }
         });
     }
+
 
 
     Runnable mStatusChecker = new Runnable() {
@@ -322,6 +351,7 @@ public class Joystick2 extends AppCompatActivity {
             if(toast != null){
                 toast.cancel();
             }
+            playSound(R.raw.motor_connect);
             toast = Toast.makeText(Joystick2.this, "Aéroglisseur connecté", Toast.LENGTH_SHORT);
             toast.getView().setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.bleuH)));
             ((TextView)toast.getView().findViewById(android.R.id.message)).setTextColor(getResources().getColor(R.color.blanc));
@@ -437,6 +467,18 @@ public class Joystick2 extends AppCompatActivity {
         intent.putExtra("device", device);
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
+    }
+
+    public void playSound(int id)
+    {
+        if(FXPlayer != null)
+        {
+            FXPlayer.stop();
+            FXPlayer.release();
+        }
+        FXPlayer = MediaPlayer.create(this, id);
+        if(FXPlayer != null)
+            FXPlayer.start();
     }
 
 }

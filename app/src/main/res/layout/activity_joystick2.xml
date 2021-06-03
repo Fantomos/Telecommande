@@ -241,7 +241,6 @@
         android:id="@+id/joystickDirection"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="16dp"
         android:translationY="80dp"
         app:JV_backgroundSizeRatio="90%"
         app:JV_borderColor="@color/blanc"
@@ -287,4 +286,18 @@
         app:layout_constraintEnd_toEndOf="@+id/periodeInputLayout"
         app:layout_constraintStart_toStartOf="@+id/periodeInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/periodeInputLayout" />
+
+    <ImageView
+        android:id="@+id/klaxon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:tint="@color/blanc"
+        app:layout_constraintBottom_toBottomOf="@+id/textView5"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView5"
+        app:layout_constraintTop_toTopOf="@+id/textView5"
+        app:srcCompat="@drawable/klaxon" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -73,4 +73,17 @@
             app:summaryOn="Arrête le moteur lorsque le joystick est relâché"
             app:title="Auto-stop" />
     </PreferenceCategory>
+
+    <PreferenceCategory app:title="Direction">
+        <SeekBarPreference
+            android:key="directionCoeff"
+            android:foregroundTint="@color/blanc"
+            android:title="Amplitude direction"
+            android:defaultValue="35"
+            android:max="63"
+            android:min="1"
+            android:theme="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:summary="Amplitude du mouvement des volets de directions"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>
